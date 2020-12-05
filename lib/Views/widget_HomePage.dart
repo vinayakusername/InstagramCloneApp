@@ -217,7 +217,7 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>
           [
-              Text("HealthTech App",
+              Text("Instagram App",
               style: TextStyle(color:Colors.white,fontSize: 45.0),
               ),
 
