@@ -205,6 +205,41 @@ class _PostState extends State<Post> {
                  ),
                )
             ],
+         ),
+         Row
+         (
+           children: <Widget>
+           [
+             Container
+             (
+               margin: EdgeInsets.only(left:20.0),
+               child: Text
+               (
+                 "$likeCount likes",
+                 style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),
+               ),
+             )
+           ],
+         ),
+         Row
+         (
+           crossAxisAlignment: CrossAxisAlignment.start,
+           children: <Widget>
+           [
+             Container
+             (
+               margin: EdgeInsets.only(left:20.0),
+               child: Text
+               (
+                 '$username',
+                  style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),
+               ),
+             ),
+             Expanded
+             (
+               child: Text(description,style:TextStyle(color:Colors.white))
+             )
+           ],
          )
        ],
      );

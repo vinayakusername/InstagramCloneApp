@@ -1,8 +1,11 @@
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:instagramapp/Model/model_user.dart';
 import 'package:instagramapp/Views/widget_EditProfilePage.dart';
 import 'package:instagramapp/Views/widget_HomePage.dart';
+import 'package:instagramapp/Views/widget_Post.dart';
+import 'package:instagramapp/Views/widget_Progress.dart';
 import 'package:instagramapp/Views/widget_ReuseableAppBar.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -14,9 +17,20 @@ class ProfilePage extends StatefulWidget {
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage> 
+{
 
-   String currentOnlineUserId = currentUser.id;
+  String currentOnlineUserId = currentUser.id;
+  bool loading = false;
+  int countPost = 0;
+  List<Post> postsList = [];
+  String postOrientation = 'grid';
+
+  void initState()
+  {
+    getAllProfilePosts();
+  }
+
 
   createProfileTopView()
   {
@@ -206,9 +220,118 @@ class _ProfilePageState extends State<ProfilePage> {
        (
          children: <Widget>
          [
-           createProfileTopView()
+           createProfileTopView(),
+           Divider(),
+           createListAndGridPostOrientation(),
+           Divider(height:0.0),
+           displayProfilePost()
          ],
        )
     );
   }
+
+  displayProfilePost()
+  {
+    if(loading)
+    {
+        return circularProgress();
+    }
+
+    else if(postsList.isEmpty)
+    {
+      return Container
+      (
+        child: Column
+        (
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>
+          [
+            Padding
+            (
+              padding: EdgeInsets.all(30.0),
+              child: Icon(Icons.photo_library,color:Colors.grey,size:200.0),
+            ),
+
+            Padding
+            (
+              padding: EdgeInsets.only(top: 20.0),
+              child: Text("No Posts",style:TextStyle(color:Colors.redAccent,fontSize:40.0,fontWeight:FontWeight.bold)),
+            )
+          ],
+        ),
+      );
+    }
+   
+    else if(postOrientation == 'grid')
+    {
+       List<GridTile> gridTitle = [];
+       postsList.forEach((eachPost) 
+       {
+          
+       });
+    }
+
+     else if(postOrientation == 'list')
+    {
+      return Column
+       (   
+         children: postsList,
+       );
+    }
+
+   
+  }
+
+  getAllProfilePosts() async
+  {
+    setState(() 
+    {
+      loading = true;  
+    });
+
+    QuerySnapshot querySnapshot = await postReference.document(widget.userProfileId)
+                                                     .collection("userPosts")
+                                                     .orderBy("timestamp",descending: true)
+                                                     .getDocuments();
+
+   setState(() 
+   {
+     loading = false;  
+     countPost = querySnapshot.documents.length;
+     postsList = querySnapshot.documents.map((documentSnapshot) => Post.fromDocument(documentSnapshot)).toList();
+   });
+  }
+
+  createListAndGridPostOrientation()
+  {
+     return Row
+     (
+       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+       children: <Widget>
+       [
+         IconButton
+         (
+           icon: Icon(Icons.grid_on),
+           color: postOrientation == 'grid'? Theme.of(context).primaryColor:Colors.grey, 
+           onPressed: () => setOrientation("grid")
+         ),
+          IconButton
+         (
+           icon: Icon(Icons.list),
+           color: postOrientation == 'list'? Theme.of(context).primaryColor:Colors.grey, 
+           onPressed:() => setOrientation("list")
+         )
+       ],
+     );
+  }
+
+  setOrientation(String orientation)
+  {
+    setState(() 
+    {
+      this.postOrientation = orientation;  
+    });
+  }
+
+
 }
