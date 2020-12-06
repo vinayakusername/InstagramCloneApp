@@ -5,6 +5,7 @@ import 'package:instagramapp/Model/model_user.dart';
 import 'package:instagramapp/Views/widget_EditProfilePage.dart';
 import 'package:instagramapp/Views/widget_HomePage.dart';
 import 'package:instagramapp/Views/widget_Post.dart';
+import 'package:instagramapp/Views/widget_PostTile.dart';
 import 'package:instagramapp/Views/widget_Progress.dart';
 import 'package:instagramapp/Views/widget_ReuseableAppBar.dart';
 
@@ -264,11 +265,22 @@ class _ProfilePageState extends State<ProfilePage>
    
     else if(postOrientation == 'grid')
     {
-       List<GridTile> gridTitle = [];
+       List<GridTile> gridTitlesList = [];
        postsList.forEach((eachPost) 
        {
-          
+        gridTitlesList.add(GridTile(child: PostTile(eachPost))); 
        });
+
+       return GridView.count
+       (
+        crossAxisCount: 3,
+        childAspectRatio: 1.0,
+        mainAxisSpacing: 1.5,
+        crossAxisSpacing: 1.5,
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: gridTitlesList,
+       );
     }
 
      else if(postOrientation == 'list')
@@ -290,7 +302,7 @@ class _ProfilePageState extends State<ProfilePage>
     });
 
     QuerySnapshot querySnapshot = await postReference.document(widget.userProfileId)
-                                                     .collection("userPosts")
+                                                     .collection("usersPosts")
                                                      .orderBy("timestamp",descending: true)
                                                      .getDocuments();
 
