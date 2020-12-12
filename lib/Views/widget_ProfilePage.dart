@@ -29,6 +29,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   void initState()
   {
+    super.initState();
     getAllProfilePosts();
   }
 
@@ -303,7 +304,7 @@ class _ProfilePageState extends State<ProfilePage>
 
     QuerySnapshot querySnapshot = await postReference.document(widget.userProfileId)
                                                      .collection("usersPosts")
-                                                     .orderBy("timestamp",descending: true)
+                                                     .orderBy("timeStamp",descending: true)
                                                      .getDocuments();
 
    setState(() 
