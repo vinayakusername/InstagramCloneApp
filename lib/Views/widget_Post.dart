@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +86,7 @@ class _PostState extends State<Post> {
   final String url;
   final String location;
   final String description;
-  final int likeCount;
+  int likeCount;
   bool isLiked;
   bool showHeart = false;
   final String currentOnlineUserId = currentUser?.id;
@@ -104,6 +106,9 @@ class _PostState extends State<Post> {
 
   @override
   Widget build(BuildContext context) {
+
+    isLiked  = (likes[currentOnlineUserId] == true);
+
     return Padding
     (
       padding: EdgeInsets.only(bottom:12.0),
@@ -157,18 +162,102 @@ class _PostState extends State<Post> {
        }
      );
    }
+
+  removeLike()
+  {
+    bool isNotPostOwner = currentOnlineUserId != ownerId;
+
+    if(isNotPostOwner)
+    {
+      activityFeedReference.document(ownerId).collection('feedItems').document(postId).get()
+                                                                                      .then
+                                                                                      (
+                                                                                        (document)
+                                                                                        {
+                                                                                          if(document.exists)
+                                                                                          {
+                                                                                            document.reference.delete();
+                                                                                          }
+                                                                                        }
+                                                                                      );
+    }
+  }
+
+  addLike()
+  {
+    bool isNotPostOwner = currentOnlineUserId != ownerId;
+    
+    if(isNotPostOwner)
+    {
+      activityFeedReference.document(ownerId).collection('feedItems').document(postId).setData
+                                                                                       ({
+                                                                                         'type' : 'Like',
+                                                                                         'username':currentUser.username,
+                                                                                         'userId': currentUser.id,
+                                                                                         'timeStamp': timeStamp,
+                                                                                         'url' : url,
+                                                                                         'postId': postId,
+                                                                                         'userProfileImg':currentUser.url
+                                                                                       });
+    }
+
+  }
+
+  controlUserLikePost()
+  {
+    bool _liked = likes[currentOnlineUserId] == true;
+
+    if(_liked)
+    {
+      postReference.document(ownerId).collection('usersPosts').document(postId)
+                                                              .updateData({"likes.$currentOnlineUserId":false});
+      removeLike();
+
+      setState(() 
+      {
+        likeCount = likeCount -1; 
+        isLiked = false;
+        likes[currentOnlineUserId] = false;
+      });
+    }
+
+    else if(!_liked)
+    {
+      postReference.document(ownerId).collection('usersPosts').document(postId)
+                                                              .updateData({"likes.$currentOnlineUserId":true});
+      addLike();
+
+      setState(() 
+      {
+        likeCount = likeCount + 1; 
+        isLiked = true;
+        likes[currentOnlineUserId] = true;
+        showHeart = true;
+      });
+       Timer(Duration(milliseconds: 800),()
+       {
+           setState(() 
+           {
+             showHeart = false;  
+           });
+       });
+    }
+  }
+
+
    createPostPicture()
    {
      return GestureDetector
      (
-       onDoubleTap: () => print('post liked'),
+       onDoubleTap: () => controlUserLikePost(),
        child: Stack
        (
          alignment: Alignment.center,
          children: <Widget>
          [
            //CachedNetworkImage(imageUrl: url)
-           Image.network(url)
+           Image.network(url),
+           showHeart ? Icon(Icons.favorite,size: 120.0,color: Colors.pink,):Text(""),
          ],
        ),
      );
@@ -187,15 +276,13 @@ class _PostState extends State<Post> {
               Padding(padding: EdgeInsets.only(top:40.0,left:20.0)),
               GestureDetector
               (
-                onTap: () => print('Liked Post'),
+                onTap: () => controlUserLikePost(),
                 child: Icon
                 (
-                  Icons.favorite,
-                  color: Colors.pink,
-                  /*
+                  
                   isLiked ? Icons.favorite:Icons.favorite_border,
                   size: 28.0,
-                  color: Colors.pink, */
+                  color: Colors.pink, 
                 ),
                ),
                GestureDetector

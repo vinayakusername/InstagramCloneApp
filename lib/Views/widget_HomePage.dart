@@ -17,6 +17,7 @@ final GoogleSignIn gSignIn = GoogleSignIn();
 final userReference = Firestore.instance.collection("users");
 final StorageReference storageReference = FirebaseStorage.instance.ref().child('Post Pictures');
 final postReference = Firestore.instance.collection('posts');
+final activityFeedReference = Firestore.instance.collection('feed');
 
 final DateTime timeStamp = DateTime.now();
 User currentUser;

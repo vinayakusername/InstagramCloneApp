@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:instagramapp/Views/widget_Post.dart';
+import 'package:instagramapp/Views/widget_PostScreenPage.dart';
 
 class PostTile extends StatelessWidget {
 
@@ -7,10 +8,22 @@ class PostTile extends StatelessWidget {
 
   PostTile(this.post);
 
+  
+  displayFullPost(context)
+  {
+     Navigator.push(context, MaterialPageRoute
+                             (
+                               builder: (context)=>PostScreenPage(postId: post.postId,userId:post.ownerId)
+                             ));
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector
     (
+      onTap: () => displayFullPost(context) ,
       child:Image.network(post.url)
     );
     
